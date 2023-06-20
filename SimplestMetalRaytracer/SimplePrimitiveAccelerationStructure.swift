@@ -17,13 +17,12 @@ class SimplePrimitiveAccelerationStructure {
     init(metal: MetalDevice) {
         self.metal = metal
 
-        let geometryDescriptor = MTLAccelerationStructureTriangleGeometryDescriptor()
-
         let vertexBuffer = metal.device.makeBuffer(
             bytes: vertices,
             length: MemoryLayout<MTLPackedFloat3>.stride * vertices.count
         )!
 
+        let geometryDescriptor = MTLAccelerationStructureTriangleGeometryDescriptor()
         geometryDescriptor.vertexBuffer = vertexBuffer
         geometryDescriptor.triangleCount = 1
 
