@@ -25,6 +25,8 @@ class SimplePrimitiveAccelerationStructure {
         let geometryDescriptor = MTLAccelerationStructureTriangleGeometryDescriptor()
         geometryDescriptor.vertexBuffer = vertexBuffer
         geometryDescriptor.triangleCount = 1
+        geometryDescriptor.opaque = false
+        geometryDescriptor.intersectionFunctionTableOffset = 0
 
         self.accelerationStructureDescriptor.geometryDescriptors = [geometryDescriptor]
         self.accelStructSizes = metal.device.accelerationStructureSizes(descriptor: accelerationStructureDescriptor)

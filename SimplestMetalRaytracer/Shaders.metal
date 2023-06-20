@@ -27,7 +27,8 @@ vertex VertexOut vertexShader(unsigned short vid [[vertex_id]]) {
 }
 
 fragment float4 fragmentShader(VertexOut in [[stage_in]],
-                               acceleration_structure<> accelStructure [[buffer(0)]]) {
+                               acceleration_structure<> accelStructure [[buffer(0)]],
+                               intersection_function_table<triangle_data> intersectionFunctionTable) {
 
     ray r;
 
@@ -37,11 +38,18 @@ fragment float4 fragmentShader(VertexOut in [[stage_in]],
     intersector<triangle_data> intersector;
     intersection_result<triangle_data> intersection;
 
-    intersection = intersector.intersect(r, accelStructure);
+    intersection = intersector.intersect(r, accelStructure, intersectionFunctionTable);
 
     if (intersection.type == intersection_type::triangle) {
         return float4(intersection.triangle_barycentric_coord, 1, 1);
     } else {
-        return float4(0);
+        return float4(in.uv, 0, 1);
     }
+}
+
+[[intersection(triangle, triangle_data)]]
+bool customIntersectionFunction(float2 barycentricCoords [[barycentric_coord]]) {
+    float3 barycentric = float3(1.0 - barycentricCoords.x - barycentricCoords.y, barycentricCoords);
+    float dist = length(float3(0.5) - barycentric);
+    return dist > 0.5;
 }
