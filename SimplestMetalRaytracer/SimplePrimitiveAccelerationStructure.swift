@@ -8,24 +8,19 @@ class SimplePrimitiveAccelerationStructure {
     private let accelerationStructureDescriptor = MTLPrimitiveAccelerationStructureDescriptor()
     private let accelStructSizes: MTLAccelerationStructureSizes
 
-    private let vertices: [MTLPackedFloat3] = [
-        MTLPackedFloat3Make( 0.0,  1.0, 0.0),
-        MTLPackedFloat3Make(-1.0, -1.0, 0.0),
-        MTLPackedFloat3Make( 1.0, -1.0, 0.0)
-    ]
-
-    init(metal: MetalDevice) {
+    init(metal: MetalDevice, spheres: [Sphere]) {
         self.metal = metal
 
-        let vertexBuffer = metal.device.makeBuffer(
-            bytes: vertices,
-            length: MemoryLayout<MTLPackedFloat3>.stride * vertices.count
-        )!
+        let boundingBoxes = spheres.map(\.boundingBox)
 
-        let geometryDescriptor = MTLAccelerationStructureTriangleGeometryDescriptor()
-        geometryDescriptor.vertexBuffer = vertexBuffer
-        geometryDescriptor.triangleCount = 1
-        geometryDescriptor.opaque = false
+        let boundingBoxBuffer = metal.device.makeBuffer(
+            bytes: boundingBoxes,
+            length: MemoryLayout<BoundingBox>.stride * spheres.count
+        )
+
+        let geometryDescriptor = MTLAccelerationStructureBoundingBoxGeometryDescriptor()
+        geometryDescriptor.boundingBoxBuffer = boundingBoxBuffer
+        geometryDescriptor.boundingBoxCount = spheres.count
         geometryDescriptor.intersectionFunctionTableOffset = 0
 
         self.accelerationStructureDescriptor.geometryDescriptors = [geometryDescriptor]
